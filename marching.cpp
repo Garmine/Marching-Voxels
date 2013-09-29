@@ -42,6 +42,10 @@ int printGLError();
 float* getWorldMatrix(float, float, float);
 //TODO: process input from GLFW
 
+//Window size
+#define WIDTH 1280
+#define HEIGHT 1024
+
 //Size of a cube divided by 2
 #define CUBE_SIZE 0.5f
 
@@ -363,7 +367,7 @@ GLfloat colorsData[N][4] = {
 		{1.0f, 0.0f, 1.0f, 1.0f},
 		{0.0f, 1.0f, 1.0f, 1.0f},
 		{1.0f, 1.0f, 1.0f, 1.0f},
-		{0.4f, 0.4f, 0.4f, 1.0f}
+		{0.2f, 0.2f, 0.2f, 1.0f}
 };
 
 TexBuffer marchingCubes, marchingBitmasks, voxelPositions, colors;
@@ -421,7 +425,7 @@ int initLibs(){
 		return 0;
 	}
 
-	window = glfwCreateWindow(640, 480, "Marching Cubes", NULL, NULL);
+	window = glfwCreateWindow(WIDTH, HEIGHT, "Marching Voxels", NULL, NULL);
 	if(!window){
 		fprintf(stderr, "initLibs(): error: couldn't create window\n");
 		return 0;
@@ -753,8 +757,9 @@ int printGLError(){
 }//extern "C"
 
 float* getWorldMatrix(float xrot, float yrot, float trans){
+	float aspect = 1.0f*WIDTH/HEIGHT;
 #if 0
-	mat4 Projection = perspective(45.0f, 4.0f/3.0f, 1.0f, 10.0f);
+	mat4 Projection = perspective(45.0f, aspect, 1.0f, 10.0f);
 	mat4 View       = lookAt(
 	    vec3(0,0,5), //Eye pos
 	    vec3(0,0,0), //Center pos
@@ -762,8 +767,8 @@ float* getWorldMatrix(float xrot, float yrot, float trans){
 	);
 	mat4 Model      = mat4(1.0f);
 	mat4 MVP        = Projection * View * Model;
-#else
-	mat4 Projection = perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.f);
+#elif 1
+	mat4 Projection = perspective(45.0f, aspect, 0.1f, 100.f);
 	mat4 ViewTranslate = translate(
 		mat4(1.0f),
 		vec3(0.0f, 0.0f, -trans)
@@ -783,6 +788,19 @@ float* getWorldMatrix(float xrot, float yrot, float trans){
 		vec3(0.5f)
 	);
 	mat4 MVP = Projection * View * Model;
+#else
+	mat4 Projection = perspective(45.0f, aspect, 0.1f, 100.f);
+	mat4 ViewRotateX = rotate(
+		mat4(1.0f),
+		yrot,
+		vec3(-1.0f, 0.0f, 0.0f)
+	);
+	mat4 View = rotate(
+		ViewRotateX,
+		xrot,
+		vec3(0.0f, 1.0f, 0.0f)
+	);
+	mat4 MVP = Projection * View;
 #endif
 
 	return value_ptr(MVP);
