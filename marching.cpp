@@ -389,7 +389,7 @@ int main(){
 
 		x += 0.01f;
 		y += 0.01f;
-		render(x, y, 1.0f, N);
+		render(x, y, 2.0f, N);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -783,10 +783,7 @@ float* getWorldMatrix(float xrot, float yrot, float trans){
 		xrot,
 		vec3(0.0f, 1.0f, 0.0f)
 	);
-	mat4 Model = scale(
-		mat4(1.0f),
-		vec3(0.5f)
-	);
+	mat4 Model = mat4(1.0f);
 	mat4 MVP = Projection * View * Model;
 #else
 	mat4 Projection = perspective(45.0f, aspect, 0.1f, 100.f);
@@ -800,7 +797,8 @@ float* getWorldMatrix(float xrot, float yrot, float trans){
 		xrot,
 		vec3(0.0f, 1.0f, 0.0f)
 	);
-	mat4 MVP = Projection * View;
+	mat4 Model = mat4(1.0f);
+	mat4 MVP = Projection * View * Model;
 #endif
 
 	return value_ptr(MVP);
