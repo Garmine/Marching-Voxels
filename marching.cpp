@@ -1,3 +1,9 @@
+/*
+ * Copyright (C) 2013 Garmine
+ * This file is released under the MIT License.
+ * You should have received a copy of the MIT License along with this program;
+ * 		if not, please refer to https://github.com/Garmine/Marching-Voxels/blob/master/LICENSE
+ */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
