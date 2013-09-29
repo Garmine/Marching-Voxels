@@ -33,13 +33,13 @@ typedef struct{
 } TexBuffer;
 
 int init();
-void render(GLint n);
+void render(float, float, float, GLint);
 GLuint makeShader(const char*, GLenum);
 GLuint makeProgram(GLuint*);
 void printProgramLog(GLuint program);
 int validateProgram(GLuint program);
 int printGLError();
-float* getWorldMatrix();
+float* getWorldMatrix(float, float, float);
 //TODO: process input from GLFW
 
 //Size of a cube divided by 2
@@ -379,10 +379,13 @@ int main(){
 
 	double t = glfwGetTime();
 	uint fps = 0;
+	float x=0.0f, y=0.0f;
 	while(!glfwWindowShouldClose(window)){
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		render(N);
+		x += 0.01f;
+		y += 0.01f;
+		render(x, y, 1.0f, N);
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
@@ -404,8 +407,8 @@ int main(){
 	exit(EXIT_SUCCESS);
 }
 
-void render(GLint n){
-	glUniformMatrix4fv(worldLoc, 1, GL_FALSE, getWorldMatrix());
+void render(float xrot, float yrot, float trans, GLint n){
+	glUniformMatrix4fv(worldLoc, 1, GL_FALSE, getWorldMatrix(xrot, yrot, trans));
 	glDrawArraysInstanced(GL_TRIANGLES, 0, 15, n);
 	if(printGLError()){
 		fprintf(stderr, "render(): OpenGL error\n");
@@ -749,41 +752,37 @@ int printGLError(){
 
 }//extern "C"
 
-float* getWorldMatrix(){
+float* getWorldMatrix(float xrot, float yrot, float trans){
 #if 0
-	mat4 projection = perspective(45.0f, 4.0f/3.0f, 1.0f, 10.0f);
-	mat4 viewTranslate = translate(mat4(1.0f), vec3(0.0f, 0.0f, -r));
-	mat4 viewRotateX = rotate(viewTranslate, b, vec3(-1.0f, 0.0f, 0.0f));
-	mat4 view = rotate(viewRotateX, a, vec3(0.0f, 1.0f, 0.0f));
-	mat4 model = mat4(1.0f);
-	mat4 MVP = projection * view * model;
-#elif 0
-	mat4 Projection = mat4(1.0f);
-	mat4 View       = lookAt(
-	    vec3(0,0,5), // Camera is at (0,0,5), in World Space
-	    vec3(0,0,0), // and looks at the origin
-	    vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
-	);
-	mat4 Model      = mat4(1.0f);
-	mat4 MVP        = Projection * View * Model;
-#elif 1
 	mat4 Projection = perspective(45.0f, 4.0f/3.0f, 1.0f, 10.0f);
 	mat4 View       = lookAt(
-	    vec3(0,0,5), // Camera is at (0,0,5), in World Space
-	    vec3(0,0,0), // and looks at the origin
-	    vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+	    vec3(0,0,5), //Eye pos
+	    vec3(0,0,0), //Center pos
+	    vec3(0,1,0)  //Up vector
 	);
 	mat4 Model      = mat4(1.0f);
 	mat4 MVP        = Projection * View * Model;
-#elif 0
-	mat4 Projection = ortho(0.0f, 640.0f, 480.0f, 0.0f, 1.0f, 10.0f);
-	mat4 View       = lookAt(
-	    vec3(0,0,5), // Camera is at (0,0,5), in World Space
-	    vec3(0,0,0), // and looks at the origin
-	    vec3(0,1,0)  // Head is up (set to 0,-1,0 to look upside-down)
+#else
+	mat4 Projection = perspective(45.0f, 4.0f / 3.0f, 0.1f, 100.f);
+	mat4 ViewTranslate = translate(
+		mat4(1.0f),
+		vec3(0.0f, 0.0f, -trans)
 	);
-	mat4 Model      = mat4(1.0f);
-	mat4 MVP        = Projection * View * Model;
+	mat4 ViewRotateX = rotate(
+		ViewTranslate,
+		yrot,
+		vec3(-1.0f, 0.0f, 0.0f)
+	);
+	mat4 View = rotate(
+		ViewRotateX,
+		xrot,
+		vec3(0.0f, 1.0f, 0.0f)
+	);
+	mat4 Model = scale(
+		mat4(1.0f),
+		vec3(0.5f)
+	);
+	mat4 MVP = Projection * View * Model;
 #endif
 
 	return value_ptr(MVP);
