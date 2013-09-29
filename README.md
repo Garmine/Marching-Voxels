@@ -11,5 +11,5 @@ An implementation of the famous marching cubes algorithm for grid-based voxel wo
  * GLFW 3
  * GLEW
  * GLM
- * OpenGL 3.3 (or newer)
+ * OpenGL 3.3 (or newer, probably portable to 3.1)
 
